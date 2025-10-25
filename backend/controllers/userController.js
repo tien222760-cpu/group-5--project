@@ -1,38 +1,65 @@
-const fs = require("fs");
-const path = require("path");
+const User = require("../models/User");
 
-// Đường dẫn file JSON
-const dataPath = path.join(__dirname, "../data/users.json");
-
-// 📌 Lấy danh sách user
-exports.getUsers = (req, res) => {
+// 📌 GET /users
+exports.getUsers = async (req, res) => {
 	try {
-		const data = fs.readFileSync(dataPath, "utf-8");
-		const users = JSON.parse(data);
+		const users = await User.find();
 		res.json(users);
 	} catch (err) {
-		console.error("Lỗi đọc users.json:", err);
-		res.status(500).json({ error: "Không thể đọc dữ liệu người dùng" });
+		console.error("Lỗi lấy dữ liệu:", err);
+		res.status(500).json({ message: "Lỗi server" });
 	}
 };
 
-// 📌 Thêm user mới
-exports.addUser = (req, res) => {
+// 📌 POST /users
+exports.addUser = async (req, res) => {
 	try {
-		const data = fs.readFileSync(dataPath, "utf-8");
-		const users = JSON.parse(data);
-
-		const newUser = {
-			id: users.length + 1,
-			name: req.body.name,
-			email: req.body.email
-		};
-
-		users.push(newUser);
-		fs.writeFileSync(dataPath, JSON.stringify(users, null, 2));
+		const { name, email } = req.body;
+		const newUser = new User({ name, email });
+		await newUser.save();
 		res.status(201).json(newUser);
 	} catch (err) {
-		console.error("Lỗi ghi users.json:", err);
-		res.status(500).json({ error: "Không thể thêm người dùng" });
+		console.error("Lỗi thêm người dùng:", err);
+		res.status(500).json({ message: "Lỗi server" });
+	}
+};
+
+// 📌 PUT /users/:id
+exports.updateUser = async (req, res) => {
+	try {
+		console.log("Body nhận được:", req.body); // 👈 Thêm dòng này
+		const { id } = req.params;
+		const { name, email } = req.body;
+
+		const updatedUser = await User.findByIdAndUpdate(
+			id,
+			{ name, email },
+			{ new: true }
+		);
+
+		if (!updatedUser)
+			return res.status(404).json({ message: "Không tìm thấy user" });
+
+		res.json(updatedUser);
+	} catch (err) {
+		console.error("Lỗi cập nhật:", err);
+		res.status(500).json({ message: "Lỗi server" });
+	}
+};
+
+
+// 📌 DELETE /users/:id
+exports.deleteUser = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const deletedUser = await User.findByIdAndDelete(id);
+
+		if (!deletedUser)
+			return res.status(404).json({ message: "Không tìm thấy user" });
+
+		res.json({ message: "Đã xóa người dùng thành công" });
+	} catch (err) {
+		console.error("Lỗi xóa:", err);
+		res.status(500).json({ message: "Lỗi server" });
 	}
 };
