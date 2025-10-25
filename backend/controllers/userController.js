@@ -24,8 +24,6 @@ exports.addUser = async (req, res) => {
 		res.status(500).json({ message: "Lỗi server" });
 	}
 };
-
-// 📌 PUT /users/:id
 exports.updateUser = async (req, res) => {
 	try {
 		console.log("Body nhận được:", req.body); // 👈 Thêm dòng này
@@ -38,8 +36,16 @@ exports.updateUser = async (req, res) => {
 			{ new: true }
 		);
 
+		if (!updatedUser)
+			return res.status(404).json({ message: "Không tìm thấy user" });
+
+		res.json(updatedUser);
+	} catch (err) {
+		console.error("Lỗi cập nhật:", err);
+		res.status(500).json({ message: "Lỗi server" });
 	}
 };
+
 
 // 📌 POST /users
 exports.addUser = async (req, res) => {
