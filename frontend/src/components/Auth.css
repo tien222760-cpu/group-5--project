@@ -50,3 +50,18 @@
 	color: #d9534f;
 	font-size: 14px;
 }
+
+.user-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.user-table th,
+.user-table td {
+	border: 1px solid #ddd;
+	padding: 10px;
+}
+
+.user-table th {
+	background: #f0f0f0;
+}
