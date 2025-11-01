@@ -1,6 +1,8 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 
 exports.signup = async (req, res) => {
 	try {
@@ -37,4 +39,39 @@ exports.login = async (req, res) => {
 
 exports.logout = (req, res) => {
 	res.json({ message: "Đăng xuất thành công. Vui lòng xóa token ở phía client." });
+};
+
+exports.forgotPassword = async (req, res) => {
+	const { email } = req.body;
+	try {
+		const user = await User.findOne({ email });
+		if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
+
+		// Tạo token reset
+		const resetToken = crypto.randomBytes(20).toString("hex");
+		user.resetPasswordToken = resetToken;
+		user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+		await user.save();
+
+		const resetURL = `http://localhost:5000/reset-password/${resetToken}`;
+
+		// Gửi email (setup transport)
+		const transporter = nodemailer.createTransport({
+			service: "gmail",
+			auth: {
+				user: process.env.EMAIL_USER,
+				pass: process.env.EMAIL_PASS
+			}
+		});
+
+		await transporter.sendMail({
+			to: user.email,
+			subject: "Dặt lại mật khẩu",
+			text: `Click để đặt lại mật khẩu: ${resetURL}`
+		});
+
+		res.json({ message: "Đã gửi email để đặt lại mật khẩu" });
+	} catch (err) {
+		res.status(500).json({ message: "Lỗi server" });
+	}
 };

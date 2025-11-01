@@ -1,10 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controllers/userController");
-const { signup, login, logout } = require("../controllers/authController");
+const { signup, login, logout, forgotPassword } = require("../controllers/authController");
 const { getProfile, updateProfile } = require("../controllers/profileController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
+
+
+router.post("/forgot-password", forgotPassword);
+router.post("/reset-password/:token", resetPassword);
+router.post("/upload-avatar", authMiddleware, uploadAvatar);
 
 
 // GET Users (Admin only)

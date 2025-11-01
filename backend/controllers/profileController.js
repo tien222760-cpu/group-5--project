@@ -1,5 +1,32 @@
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../config/cloudinary");
 const User = require("../models/user");
 
+// Setup multer for Cloudinary
+const storage = new CloudinaryStorage({
+	cloudinary,
+	params: {
+		folder: "user_avatars",
+		allowed_formats: ["jpg", "png"]
+	}
+});
+
+const upload = multer({ storage });
+
+exports.uploadAvatar = [
+	upload.single("avatar"),
+	async (req, res) => {
+		try {
+			const user = await User.findById(req.user.id);
+			user.avatar = req.file.path; // URL từ Cloudinary
+			await user.save();
+			res.json({ message: "Avatar uploaded", avatar: user.avatar });
+		} catch (err) {
+			res.status(500).json({ message: "Server error" });
+		}
+	}
+];
 // GET /api/users/profile
 exports.getProfile = async (req, res) => {
 	try {
