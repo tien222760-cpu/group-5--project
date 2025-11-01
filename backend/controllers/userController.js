@@ -1,4 +1,4 @@
-const User = require("../models/User");
+const User = require("../models/user");
 
 // 📌 GET /users
 exports.getUsers = async (req, res) => {
@@ -27,7 +27,6 @@ exports.addUser = async (req, res) => {
 // 📌 PUT /users/:id
 exports.updateUser = async (req, res) => {
 	try {
-		console.log("Body nhận được:", req.body); // 👈 Thêm dòng này
 		const { id } = req.params;
 		const { name, email } = req.body;
 
@@ -46,7 +45,6 @@ exports.updateUser = async (req, res) => {
 		res.status(500).json({ message: "Lỗi server" });
 	}
 };
-
 
 // 📌 DELETE /users/:id
 exports.deleteUser = async (req, res) => {
