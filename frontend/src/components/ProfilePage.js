@@ -10,9 +10,10 @@ const ProfilePage = () => {
 
 	useEffect(() => {
 		axios
-			.get("http://localhost:5000/api/users/profile", {
+			.get("http://localhost:5000/users/profile", {
 				headers: { Authorization: `Bearer ${token}` },
 			})
+			.then(console.log(token))
 			.then((res) => setUser(res.data))
 			.catch(() => alert("Vui lòng đăng nhập"));
 	}, [token]);
@@ -20,7 +21,7 @@ const ProfilePage = () => {
 	const handleSubmit = (e) => {
 		e.preventDefault();
 		axios
-			.put("http://localhost:5000/api/users/profile", user, {
+			.put("http://localhost:5000/users/profile", user, {
 				headers: { Authorization: `Bearer ${token}` },
 			})
 			.then((res) => {
