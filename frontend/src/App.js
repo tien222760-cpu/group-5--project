@@ -1,19 +1,20 @@
-import React, { useState } from "react";
+
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
-import "./index.css";
+import ProfilePage from "./components/ProfilePage";
 
 function App() {
-	const [isSignup, setIsSignup] = useState(false);
-
 	return (
-		<div className="app-container">
-			{ isSignup ? (
-				<SignupForm switchToLogin={ () => setIsSignup(false) } />
-			) : (
-				<LoginForm switchToSignup={ () => setIsSignup(true) } />
-			) }
-		</div>
+		<Router>
+			<div className="app-container">
+				<Routes>
+					<Route path="/" element={ <LoginForm /> } />
+					<Route path="/signup" element={ <SignupForm /> } />
+					<Route path="/profile" element={ <ProfilePage /> } />
+				</Routes>
+			</div>
+		</Router>
 	);
 }
 
