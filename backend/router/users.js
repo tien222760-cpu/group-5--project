@@ -4,6 +4,14 @@ const userController = require("../controllers/userController");
 const { signup, login, logout } = require("../controllers/authController");
 const { getProfile, updateProfile } = require("../controllers/profileController");
 const authMiddleware = require("../middleware/authMiddleware");
+const roleMiddleware = require("../middleware/roleMiddleware");
+
+
+// GET Users (Admin only)
+router.get("/", authMiddleware, roleMiddleware("Admin"), userController.getUsers);
+
+// DELETE User (Admin only)
+router.delete("/:id", authMiddleware, roleMiddleware("Admin"), userController.deleteUser);
 
 // ===== AUTH routes =====
 router.post("/signup", signup);
