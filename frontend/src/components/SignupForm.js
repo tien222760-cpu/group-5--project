@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./Auth.css";
+import "./style.css";
 
 const SignupForm = ({ switchToLogin }) => {
 	const [formData, setFormData] = useState({ name: "", email: "", password: "" });

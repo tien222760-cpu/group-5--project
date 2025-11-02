@@ -65,3 +65,49 @@
 .user-table th {
 	background: #f0f0f0;
 }
+
+.auth-container {
+	width: 350px;
+	margin: 50px auto;
+	background: #f7f7f7;
+	padding: 25px;
+	border-radius: 12px;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.auth-form input,
+.auth-form button {
+	width: 100%;
+	padding: 12px;
+	margin-top: 10px;
+	border-radius: 8px;
+	border: 1px solid #ddd;
+}
+
+.auth-form button {
+	background: #2196f3;
+	color: white;
+	cursor: pointer;
+	transition: 0.3s;
+}
+
+.auth-form button:hover {
+	background: #0b7dda;
+}
+.profile-container {
+	width: 400px;
+	margin: 30px auto;
+	padding: 20px;
+	text-align: center;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-img {
+	width: 120px;
+	height: 120px;
+	border-radius: 50%;
+	margin-bottom: 15px;
+	border: 2px solid #4caf50;
+}

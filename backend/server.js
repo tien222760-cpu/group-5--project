@@ -14,7 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
 
-// Kết nối MongoDB Atlas
+// Kết nối MongoDB Atlasx`
 
 mongoose
 	.connect("mongodb+srv://nguyen221598_db_user:hanhnguyen%4004@cluster0.dv9qyaq.mongodb.net/group5DB")
