@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const User = require('./models/User.js'); // Import model User từ file kia
+const User = require('./models/user.js'); // Import model User từ file kia
 
 const app = express();
 app.use(express.json()); // Bắt buộc phải có dòng này để server hiểu được JSON
