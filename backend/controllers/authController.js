@@ -13,7 +13,7 @@ exports.signup = async (req, res) => {
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const user = await User.create({ name, email, password: hashedPassword });
+		const user = await User.create({ name, email, password: password });
 		res.status(201).json({ message: "Tạo người dùng thành công", user });
 	} catch (err) {
 		res.status(500).json({ message: "Lỗi server" });
@@ -27,7 +27,7 @@ exports.login = async (req, res) => {
 		const user = await User.findOne({ email });
 		if (!user) return res.status(400).json({ message: "Email hoặc mật khẩu không hợp lệ" });
 
-		const isMatch = await bcrypt.compare(password, user.password);
+		const isMatch = password === user.password;
 		if (!isMatch) return res.status(400).json({ message: "Email hoặc mật khẩu không hợp lệ" });
 
 		const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
@@ -98,8 +98,8 @@ exports.resetPassword = async (req, res) => {
 
 		// 2. Find user by the hashed token and check expiry date
 		const user = await User.findOne({
-			resetPasswordToken, // Find using the hashed token stored in DB
-			resetPasswordExpire: { $gt: Date.now() }, // Check if expiry date is still in the future
+			resetPasswordToken,
+			resetPasswordExpire: { $gt: Date.now() },
 		});
 
 		// 3. If token is invalid or expired
@@ -107,7 +107,17 @@ exports.resetPassword = async (req, res) => {
 			return res.status(400).json({ message: 'Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn' });
 		}
 
-		user.password = await bcrypt.hash(password, 10);
+		// Get new password from request body and validate
+		const { password } = req.body;
+		if (!password || typeof password !== 'string' || password.length < 6) {
+			return res.status(400).json({ message: 'Mật khẩu mới phải có ít nhất 6 ký tự' });
+		}
+
+		const hashedPassword = await bcrypt.hash(password, 10);
+		user.password = hashedPassword;
+		if (process.env.NODE_ENV !== 'production') {
+			console.log('[authController] user.password now type:', typeof user.password, 'len:', (user.password || '').length);
+		}
 		user.resetPasswordToken = undefined;
 		user.resetPasswordExpire = undefined;
 
