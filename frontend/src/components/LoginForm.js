@@ -39,8 +39,9 @@ const Login = () => {
 				<button type="submit">Đăng nhập</button>
 			</form>
 
-			<div style={ { marginTop: "15px", textAlign: "center" } }>
+			<div style={ { marginTop: "15px", textAlign: "center", display: "block" } }>
 				<a href="/forgot-password">Quên mật khẩu?</a>
+				<a href="/signup">Tạo tài khoản?</a>
 			</div>
 		</div>
 	);

@@ -47,13 +47,13 @@ exports.forgotPassword = async (req, res) => {
 		const user = await User.findOne({ email });
 		if (!user) return res.status(404).json({ message: "Không tìm thấy người dùng" });
 
-		// Tạo token reset
+		// Tạo token reset (raw) và lưu dạng hashed trong DB
 		const resetToken = crypto.randomBytes(20).toString("hex");
-		user.resetPasswordToken = resetToken;
+		const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+		user.resetPasswordToken = hashedToken;
 		user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
 		await user.save();
 
-		// build frontend reset URL (frontend handles the token route)
 		const frontendBase = process.env.FRONTEND_URL || "http://localhost:3000";
 		const resetURL = `${frontendBase}/reset-password/${resetToken}`;
 
@@ -74,30 +74,50 @@ exports.forgotPassword = async (req, res) => {
 				   <p><a href="${resetURL}">${resetURL}</a></p>`
 		});
 
+		// dev: log reset token and URL so developer can test without email delivery
+		// Only log the raw token in non-production environments
+		if (process.env.NODE_ENV !== 'production') {
+			console.log("[authController] Generated reset token (raw):", resetToken);
+			console.log("[authController] Reset URL:", resetURL);
+		} else {
+			console.log('[authController] Reset URL created (production)');
+		}
+
 		res.json({ message: "Đã gửi email để đặt lại mật khẩu" });
 	} catch (err) {
 		res.status(500).json({ message: "Lỗi server" });
 	}
 };
 exports.resetPassword = async (req, res) => {
-	const { token } = req.params;
-	const { password } = req.body;
-
 	try {
+		// 1. Get the hashed token from URL parameter
+		const resetPasswordToken = crypto
+			.createHash('sha256')
+			.update(req.params.token) // Hash the raw token from the URL
+			.digest('hex');
+
+		// 2. Find user by the hashed token and check expiry date
 		const user = await User.findOne({
-			resetPasswordToken: token,
-			resetPasswordExpire: { $gt: Date.now() }
+			resetPasswordToken, // Find using the hashed token stored in DB
+			resetPasswordExpire: { $gt: Date.now() }, // Check if expiry date is still in the future
 		});
 
-		if (!user) return res.status(400).json({ message: "Token invalid or expired" });
+		// 3. If token is invalid or expired
+		if (!user) {
+			return res.status(400).json({ message: 'Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn' });
+		}
 
 		user.password = await bcrypt.hash(password, 10);
 		user.resetPasswordToken = undefined;
 		user.resetPasswordExpire = undefined;
 
 		await user.save();
-		res.json({ message: "Đặt lại mật khẩu thành công" });
-	} catch (err) {
-		res.status(500).json({ message: "Lỗi server" });
+
+		res.status(200).json({ success: true, message: 'Đặt lại mật khẩu thành công' });
+
+	} catch (error) {
+		console.error("Lỗi resetPassword:", error);
+		res.status(500).json({ message: 'Đã xảy ra lỗi. Vui lòng thử lại sau.' });
 	}
 };
+

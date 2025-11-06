@@ -29,7 +29,7 @@ const SignupForm = ({ switchToLogin }) => {
 				<input type="password" name="password" placeholder="Mật khẩu" onChange={ handleChange } required />
 				<button type="submit">Đăng Ký</button>
 				<p className="switch-link">
-					Đã có tài khoản? <span onClick={ switchToLogin }>Đăng nhập ngay</span>
+					Đã có tài khoản? <a href="/">Đăng nhập ngay</a>
 				</p>
 			</form>
 			<p className="auth-message">{ message }</p>
